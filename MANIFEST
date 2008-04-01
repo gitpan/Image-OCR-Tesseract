@@ -1,0 +1,15 @@
+README
+Makefile.PL
+t/00_dependencies_check.t
+t/02_Image_OCR_Tesseract.t
+t/99_cleanup.t
+t/img_big.jpg
+t/img_med.jpg
+t/img_small.jpg
+t/paragraph.jpg
+t/test.pl
+t/tesseract_install_helper.pl
+lib/Image/OCR/Tesseract.pm
+MANIFEST
+bin/ocr
+META.yml                                 Module meta-data (added by MakeMaker)

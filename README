@@ -1,0 +1,31 @@
+Image::OCR::Tesseract
+=====================
+
+You will need tesseract and ImageMagick installed on your system.
+This package runs on linux.
+
+
+INSTALLING TESSERACT
+====================
+
+Installing tesseract can be tricky.
+You will basically need gcc-c++ and automake installed on your system.
+
+You may be able to simply install the SVN version of Tesseract by using:
+
+ svn checkout http://tesseract-ocr.googlecode.com/svn/trunk/ tesseract-ocr
+ ./runautoconf
+ mkdir build-directory
+ cd build-directory
+ ../configure
+ make
+ make install
+
+
+for more see google project on ocr, they use tesseract
+
+
+
+
+
+

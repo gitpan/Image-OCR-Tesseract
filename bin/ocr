@@ -1,0 +1,112 @@
+#!/usr/bin/perl
+use strict;
+use base 'LEOCHARRE::CLI';
+use Cwd;
+use lib './lib';
+our $VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /(\d+)/g;
+use Image::OCR::Tesseract 'get_ocr';
+
+my $o = gopts('b');
+
+if (DEBUG){
+   $Image::OCR::Tesseract::DEBUG=1;
+}
+
+sub usage {
+   return qq{
+   $0 - $VERSION
+   ==========
+      -b blowup
+      -d debug on
+
+      ocr ./image.jpg > ./savetext.txt
+      ocr ./image.png
+      ocr ./image1.jpg ./image2.jpg > ./alltext.txt
+      ocr ./image*jpg
+
+   man ocr for more information.
+   };
+}
+
+my $images = argv_aspaths();
+scalar @$images or print STDERR $usage and exit;
+
+
+
+
+IMAGE: for my $abs_image (@$images){ ### Getting OCR %
+
+   if ($o->{b}){ # blowup
+      my $_abs_image = $abs_image;
+      $_abs_image=~s/(\.\w{1,5})$/_tmp$1/ or die;
+
+      require File::Which;
+      system( 
+         File::Which::which('convert'), $abs_image, 
+         #'-resize','1500x1500',
+         '-contrast', '-normalize','-colorspace','Gray',$_abs_image) == 0 or die($?);
+      $abs_image = $_abs_image;
+   }
+
+   my $ocr;
+   
+   if( $ocr = get_ocr($abs_image) ){
+      if ($o->{b}){ 
+         unlink $abs_image;
+      }
+
+      print $ocr;
+      next IMAGE;
+   }
+
+
+   warn("nothing inside $abs_image?");
+   if ($o->{b}){
+      unlink $abs_image;
+   }
+
+}
+
+exit;
+
+
+
+
+__END__
+
+=pod
+
+=head1 NAME
+
+ocr - read an image as text and output to stdout
+
+=head1 DESCRIPTION
+
+This is just an interface to make it quick an easy to get ocr output from an image file.
+No matter what image you provide, imagemagick convert is called to turn it into the format
+for tesseract.
+
+
+=head1 OPTION FLAGS
+
+   -b blowup  (useful for small images)
+   -d debug
+
+=head1 AUTHOR
+
+Leo Charre leocharre at cpan dot org
+
+=head1 SEE ALSO
+
+Image::OCR::Tesseract
+tesseract
+convert
+
+=cut
+
+
+~                                                                                                  
+~                                                                                                  
+~                                                                                                  
+~                                                                                                  
+~       
