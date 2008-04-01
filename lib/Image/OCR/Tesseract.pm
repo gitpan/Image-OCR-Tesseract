@@ -6,10 +6,9 @@ require Exporter;
 use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_ocr _tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.10 $ =~ /(\d+)/g;
 
 sub DEBUG : lvalue { $DEBUG }
-
 
 
 sub _tesseractbin {
@@ -70,7 +69,6 @@ sub get_ocr {
    return $content;
 }
 
-
 sub _8bpp_tif {
    my $img = shift;
    defined $img or die('missing image arg');
@@ -112,8 +110,6 @@ sub _tesseract {
 	return $content;
 }
 
-
-
 sub _slurp {
    my $abs = shift;
    open(FILE,'<', $abs) or die($!);
@@ -121,11 +117,9 @@ sub _slurp {
    my $txt = <FILE>;
    close FILE;
    return $txt;
-   
 }  
 
 1;
-
 
 #sub _force_imgtype {
 #   my $img = shift;
