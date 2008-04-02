@@ -2,35 +2,23 @@ package Image::OCR::Tesseract;
 use strict;
 use Carp;
 use Cwd;
+use File::Which;
 require Exporter;
-use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG);
+use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS);
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(get_ocr _tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.10 $ =~ /(\d+)/g;
+@EXPORT_OK = qw(get_ocr _tesseract convert_8bpp_tif tesseract);
+$VERSION = sprintf "%d.%02d", q$Revision: 1.12 $ =~ /(\d+)/g;
+%EXPORT_TAGS = ( all => \@EXPORT_OK );
+
+$WHICH_TESSERACT = File::Which::which('tesseract') or die("Is tesseract installed?");
+$WHICH_CONVERT   = File::Which::which('convert')   or die("Is convert installed?");
 
 sub DEBUG : lvalue { $DEBUG }
-
-
-sub _tesseractbin {
-   unless( defined $Image::OCR::Tesseract::_tesseractbin ){
-      require File::Which;
-      $Image::OCR::Tesseract::_tesseractbin = File::Which::which('tesseract')
-      or die("File::Which::which() cannot find path to tesseract bin, is tesseract installed?");
-   }
-
-   return $Image::OCR::Tesseract::_tesseractbin;
+sub debug {
+   my $msg = shift;
+   print STDERR 'DEBUG '.__PACKAGE__.", $msg\n" if DEBUG;
+   return 1;
 }
-
-sub _convertbin {
-   unless( defined $Image::OCR::Tesseract::_convertbin ){
-      require File::Which;
-      $Image::OCR::Tesseract::_convertbin = File::Which::which('convert')
-      or die("File::Which::which() cannot find path to convert, is imagemagick installed?");
-   }
-
-   return $Image::OCR::Tesseract::_convertbin;
-}
-
 
 sub get_ocr {
 	my ($abs_image,$abs_tmp )= @_;
@@ -41,27 +29,24 @@ sub get_ocr {
       -d $abs_tmp or die("tmp dir arg $abs_tmp not a dir on disk.");
       $abs_image=~/([^\/]+)$/ or die('cant match filename');
       my $copyto = "$abs_tmp/$1";
-      # require Cwd;
+
       # TODO, what if source and dest are same, i want it to die
       require File::Copy;
       File::Copy::copy($abs_image, $copyto) or die("cant make copy of $abs_image to $copyto, $!");
       $abs_image = $copyto;
       $copied =1;
-
    }
 
+   my $tmp_tif = convert_8bpp_tif($abs_image);
 
-   my $tmp_tif = _8bpp_tif($abs_image);
    my $content = _tesseract($tmp_tif);
    
-   if (DEBUG){
-      print STDERR "8 bpp tif created: $tmp_tif,not deleted because debug is on.\n";
-   }
-   else {
-      unlink $tmp_tif;
-   }
+   $DEBUG
+      ? debug("$tmp_tif not unlinked because debug is on.")
+      : unlink $tmp_tif;
+   
    if($copied){
-      print STDERR "image was copied.. will unkink $abs_image\n" if DEBUG;
+      debug("image was copied.. will unkink $abs_image");
       unlink $abs_image;
    }
 
@@ -69,50 +54,47 @@ sub get_ocr {
    return $content;
 }
 
-sub _8bpp_tif {
-   my $img = shift;
-   defined $img or die('missing image arg');
+sub convert_8bpp_tif {
+   my ($abs_img,$abs_out) = (shift,shift);
+   defined $abs_img or die('missing image arg');
 
-   my $tmp = $img.'.tmp.'.time().(int rand(9000)).'.tif';
-   system(
-      _convertbin(), $img, 
-      qw(-compress none +matte),
-      $tmp
-   ) == 0 or die($?);
-   return $tmp;
+   $abs_out ||= $abs_img.'.tmp.'.time().(int rand(9000)).'.tif';
+   
+   my @arg = ( $WHICH_CONVERT, $abs_img, '-compress','none','+matte', $abs_out );
+   system(@arg) == 0 or die("convert $abs_img error.. $?");
+
+   debug("made $abs_out 8bpp tiff.");
+   return $abs_out;
 }
 
+
+*tesseract = \&_tesseract;
 sub _tesseract {
 	my $abs_image = shift;
    defined $abs_image or croak('missing image pah arg');
-   my $tesseract =_tesseractbin();
 
-	system("$tesseract $abs_image $abs_image 2>/dev/null");
-	#	or warn("call to tesseract ocr failed, system [@args] : $?") and return;
+	system("$WHICH_TESSERACT '$abs_image' '$abs_image' 2>/dev/null"); # hard to check ==0 
 
-      
-	
 	my $txt = "$abs_image.txt";
-	print STDERR "text saved as '$abs_image.txt'\n" if DEBUG;
-	my $content;
-	if (-f $txt){
-		#$content = File::Slurp::slurp($txt);
-      $content = _slurp($txt);
-      $content ||='';
-		unlink($txt) unless DEBUG;
-	}
-
-	else {
-		#$content = '';
-		warn("tesseract did not output? nothing inside [$abs_image]?");		
+   unless( -f $txt ){      
+		warn("Tesseract did not output? nothing inside [$abs_image]? ('$txt' not file on disk)");
       return;
-	}
-	return $content;
+   }
+
+	debug("text saved as '$abs_image.txt'");
+   
+   my $content = _slurp($txt);
+   $content ||= '';
+   debug("content length is ". length $content );
+
+   unlink($txt) unless DEBUG;
+   debug("did not unlink $txt, debug is on.");
+   return $content;
 }
 
 sub _slurp {
    my $abs = shift;
-   open(FILE,'<', $abs) or die($!);
+   open(FILE,'<', $abs) or die("can't open file for reading '$abs', $!");
    local $/;
    my $txt = <FILE>;
    close FILE;
@@ -164,31 +146,47 @@ your file is not a tiff file, that way you don't have to worry about your image 
 
 Tesseract spits out a text file- get_ocr() will erase that and return you the output.
 
-=head1 get_ocr()
+=head1 SUBS
 
-Argument is abs path to image file.
+No subs are exported by default.
+
+=head2 get_ocr()
+
+Argument is abs path to image file. Can be most image formats.
 Optional argument is abs path to temp dir.
+
 If you don't have write access to the directory the image resides on, 
-you should provide as argument a directory you do have write access to.
+you should provide as argument a directory you do have write access to,
+this would be the second argument.
 
 Returns text content as read by tesseract.
 
 Does not clean up after itself if DEBUG is on.
 
-warns if no output
+Warns if no output.
 
-=head1 _tesseract()
+This takes care of converting to the right image format, etc.
+The original image is unchanged.
 
-Argument is abs path to tif file. Will return text output. 
+=head2 tesseract()
+
+Argument is abs path to tif file. 
+
+Will return text output. 
 If none inside or tesseract fails, returns empty string.
 If tesseract fails, warns.
 
+=head2 convert_8bpp_tif()
+
+Argument is abs path to image file.
+Optional argument is abs path to image out.
+Returns abs path of image created. Uses 'convert', from ImageMagick.
 
 =head1 TESSERACT NOTES
 
-tesseract is an open source ocr engine.
-for an image to be read by tesseract properly, it must be an 8 bit per pixel tif format image file.
-What this module does is to create a temporary file from your target image, which will be an 8 bit per pixel image.
+Tesseract is an open source ocr engine.
+For an image to be read by tesseract properly, it must be an 8 bit per pixel tif format image file.
+What this module does is to create a temporary file from your target image, which will be an 8 bit per pixel image, it then reads the output and returns it to you as a string.
 
 =head2 INSTALLING TESSERACT
 
@@ -196,7 +194,6 @@ Included in this package is t/tesseract_install_helper.pl which will check for p
 
 Installing tesseract can be tricky.
 You will basically need gcc-c++ and automake installed on your system.
-
 After you have automake and gcc-c++, you should be able to install.
 
 =head3 SVN
@@ -218,13 +215,23 @@ for more see google project on ocr, they use tesseract
 Another great OCR engine is gocr, but it is not suited for the purpose of reading text from images.
 gocr is great if you need to tweak what you are reading, and for other specialized purposes.
 
+An example using gocr as engine is L<Finance::MICR::GOCR::Check>. 
+
 =head1 SEE ALSO
 
-tesseract
+tesseract on google code.
 gocr
-convert
+convert ImageMagick.
+
 ocr
 
+
+=head1 CAVEATS
+
+This module is for POSIX systems.
+It is not intended to run on other "systems" and no support for such will be added
+in the future.
+Attempting to install on an unsupported OS will throw an exception.
 
 =head1 DEBUG
 
@@ -240,7 +247,7 @@ Leo Charre leocharre at cpan dot org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Leo Charre. All rights reserved.
+Copyright (c) 2008 Leo Charre. All rights reserved.
 
 =head1 LICENSE
 

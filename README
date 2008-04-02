@@ -2,7 +2,9 @@ Image::OCR::Tesseract
 =====================
 
 You will need tesseract and ImageMagick installed on your system.
-This package runs on linux.
+This package runs on Unix/Linux type OS.
+
+The Makefile.PL will check that you have tesseract installed.
 
 
 INSTALLING TESSERACT

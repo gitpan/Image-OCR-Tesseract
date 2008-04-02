@@ -1,15 +1,18 @@
 README
 Makefile.PL
-t/00_dependencies_check.t
 t/02_Image_OCR_Tesseract.t
 t/99_cleanup.t
 t/img_big.jpg
 t/img_med.jpg
 t/img_small.jpg
 t/paragraph.jpg
-t/test.pl
 t/tesseract_install_helper.pl
 lib/Image/OCR/Tesseract.pm
 MANIFEST
 bin/ocr
+inc/Devel/AssertOS/Linux.pm
+inc/Devel/CheckOS.pm
+inc/Devel/AssertOS.pm
+inc/Devel/AssertOS/Unix.pm
+inc/Devel/AssertEXE.pm
 META.yml                                 Module meta-data (added by MakeMaker)

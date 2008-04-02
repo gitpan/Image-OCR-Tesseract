@@ -1,3 +1,7 @@
+use lib inc; 
+use Devel::AssertOS qw(Unix Linux);
+use Devel::AssertEXE qw(tesseract convert);
+
 use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Image::OCR::Tesseract',
@@ -13,3 +17,6 @@ WriteMakefile(
 					 },
     EXE_FILES               => [qw(bin/ocr)],
 );
+
+
+
