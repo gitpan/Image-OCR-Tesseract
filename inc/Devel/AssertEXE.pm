@@ -1,6 +1,7 @@
 package Devel::AssertEXE;
 use strict;
 
+
 sub import {
    shift;
    die("Devel::AssertEXE needs at least one parameter\n") unless (@_);
@@ -25,3 +26,4 @@ sub have_exe {
 
 
 1;
+

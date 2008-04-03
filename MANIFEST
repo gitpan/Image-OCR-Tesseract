@@ -1,3 +1,4 @@
+inc/Devel/AssertEXE.pm #__assertexe__#
 README
 Makefile.PL
 t/02_Image_OCR_Tesseract.t
@@ -14,5 +15,4 @@ inc/Devel/AssertOS/Linux.pm
 inc/Devel/CheckOS.pm
 inc/Devel/AssertOS.pm
 inc/Devel/AssertOS/Unix.pm
-inc/Devel/AssertEXE.pm
 META.yml                                 Module meta-data (added by MakeMaker)

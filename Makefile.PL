@@ -1,6 +1,6 @@
-use lib inc; 
+use lib inc; #__assertexe__#
+use Devel::AssertEXE qw(tesseract convert); #__assertexe__#
 use Devel::AssertOS qw(Unix Linux);
-use Devel::AssertEXE qw(tesseract convert);
 
 use ExtUtils::MakeMaker;
 WriteMakefile(

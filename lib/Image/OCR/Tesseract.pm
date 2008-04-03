@@ -7,7 +7,7 @@ require Exporter;
 use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_ocr _tesseract convert_8bpp_tif tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.12 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.13 $ =~ /(\d+)/g;
 %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 $WHICH_TESSERACT = File::Which::which('tesseract') or die("Is tesseract installed?");
@@ -140,9 +140,10 @@ Image::OCR::Tesseract - read an image with tesseract and get output
 
 =head1 DESCRIPTION
 
-This is a simple wrapper for tesseract.
-Tesseract expects a tiff file, get_ocr() will convert to a temporary tiff if 
-your file is not a tiff file, that way you don't have to worry about your image format for ocr.
+This is a wrapper for tesseract.
+Tesseract expects a tiff file, get_ocr() will convert to a temporary tiff.
+If your file is not a tiff file, that way you don't have to worry about 
+your image format for ocr.
 
 Tesseract spits out a text file- get_ocr() will erase that and return you the output.
 
@@ -225,7 +226,6 @@ convert ImageMagick.
 
 ocr
 
-
 =head1 CAVEATS
 
 This module is for POSIX systems.
@@ -260,8 +260,3 @@ This package is distributed in the hope that it will be useful, but WITHOUT ANY 
 See the "GNU General Public License" for more details.
 
 =cut
-
-
-
-
-
