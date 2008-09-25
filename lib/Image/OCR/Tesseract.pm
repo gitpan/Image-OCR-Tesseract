@@ -2,56 +2,59 @@ package Image::OCR::Tesseract;
 use strict;
 use Carp;
 use Cwd;
-use File::Which;
-require Exporter;
-use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS);
+use Exporter;
+use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS @TRASH);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_ocr _tesseract convert_8bpp_tif tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.13 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.14 $ =~ /(\d+)/g;
 %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
-$WHICH_TESSERACT = File::Which::which('tesseract') or die("Is tesseract installed?");
-$WHICH_CONVERT   = File::Which::which('convert')   or die("Is convert installed?");
-
-sub DEBUG : lvalue { $DEBUG }
-sub debug {
-   my $msg = shift;
-   print STDERR 'DEBUG '.__PACKAGE__.", $msg\n" if DEBUG;
-   return 1;
+BEGIN {
+   require File::Which;
+   $WHICH_TESSERACT = File::Which::which('tesseract') or die("Is tesseract installed?");
+   $WHICH_CONVERT   = File::Which::which('convert')   or die("Is convert installed?");
 }
 
+END {
+   scalar @TRASH or return;
+   if ( $DEBUG ){
+      print STDERR "Debug on, theses are trash files:\n".join("\n",@TRASH) ;
+   }
+   else {
+      unlink @TRASH;
+   }
+}
+
+sub DEBUG : lvalue { $DEBUG }
+sub debug { print STDERR 'DEBUG '.__PACKAGE__.", @_\n" if $DEBUG; 1 }
+
 sub get_ocr {
-	my ($abs_image,$abs_tmp )= @_;
+	my ($abs_image,$abs_tmp_dir )= @_;
 	-f $abs_image or croak("$abs_image is not a file on disk");
 
-   my $copied = 0;
-   if(defined $abs_tmp){
-      -d $abs_tmp or die("tmp dir arg $abs_tmp not a dir on disk.");
+   if(defined $abs_tmp_dir){
+
+      -d $abs_tmp_dir or die("tmp dir arg $abs_tmp_dir not a dir on disk.");
+
       $abs_image=~/([^\/]+)$/ or die('cant match filename');
-      my $copyto = "$abs_tmp/$1";
+      my $abs_copy = "$abs_tmp_dir/$1";
 
       # TODO, what if source and dest are same, i want it to die
       require File::Copy;
-      File::Copy::copy($abs_image, $copyto) or die("cant make copy of $abs_image to $copyto, $!");
-      $abs_image = $copyto;
-      $copied =1;
+      File::Copy::copy($abs_image, $abs_copy) 
+         or die("cant make copy of $abs_image to $abs_copy, $!");
+
+      # change the image to get ocr from to be the copy
+      $abs_image = $abs_copy;
+      # since it's a copy. erase that on exit
+      push @TRASH, $abs_image;      
    }
 
    my $tmp_tif = convert_8bpp_tif($abs_image);
-
-   my $content = _tesseract($tmp_tif);
    
-   $DEBUG
-      ? debug("$tmp_tif not unlinked because debug is on.")
-      : unlink $tmp_tif;
-   
-   if($copied){
-      debug("image was copied.. will unkink $abs_image");
-      unlink $abs_image;
-   }
+   push @TRASH, $tmp_tif; # for later delete
 
-   $content||='';
-   return $content;
+   _tesseract($tmp_tif) || '';
 }
 
 sub convert_8bpp_tif {
@@ -64,7 +67,7 @@ sub convert_8bpp_tif {
    system(@arg) == 0 or die("convert $abs_img error.. $?");
 
    debug("made $abs_out 8bpp tiff.");
-   return $abs_out;
+   $abs_out;
 }
 
 
@@ -77,7 +80,7 @@ sub _tesseract {
 
 	my $txt = "$abs_image.txt";
    unless( -f $txt ){      
-		warn("Tesseract did not output? nothing inside [$abs_image]? ('$txt' not file on disk)");
+		carp( __PACKAGE__.", tesseract did not output? nothing inside [$abs_image]? ('$txt' not file on disk)");
       return;
    }
 
@@ -87,8 +90,8 @@ sub _tesseract {
    $content ||= '';
    debug("content length is ". length $content );
 
-   unlink($txt) unless DEBUG;
-   debug("did not unlink $txt, debug is on.");
+   push @TRASH, $txt;
+
    return $content;
 }
 

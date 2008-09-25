@@ -1,0 +1,27 @@
+2008-09-18 17:24  cvs
+
+	* lib/Image/OCR/Tesseract.pm: changed the way trash is cleaned up
+	  with a global @TRASH is debug is on, files are not deleted on END
+	  and the list is output to stdout
+
+2008-09-18 16:59  cvs
+
+	* INSTALL.imagemagick, INSTALL.tesseract, README: Added INSTALL.*
+	  files to help with deps
+
+2008-01-01 04:23  cvs
+
+	* MANIFEST, Makefile.PL, README, t/02_Image_OCR_Tesseract.t,
+	  t/99_cleanup.t, t/tesseract_install_helper.pl, t/img_big.jpg,
+	  t/img_med.jpg, t/00_dependencies_check.t, t/img_small.jpg,
+	  t/test.sh, bin/ocr, lib/Image/OCR/Tesseract.pm, t/paragraph.jpg:
+	  Initial revision
+
+2008-01-01 04:23  cvs
+
+	* MANIFEST, Makefile.PL, README, t/02_Image_OCR_Tesseract.t,
+	  t/99_cleanup.t, t/tesseract_install_helper.pl, t/img_big.jpg,
+	  t/img_med.jpg, t/00_dependencies_check.t, t/img_small.jpg,
+	  t/test.sh, bin/ocr, lib/Image/OCR/Tesseract.pm, t/paragraph.jpg:
+	  init import
+

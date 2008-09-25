@@ -6,25 +6,12 @@ This package runs on Unix/Linux type OS.
 
 The Makefile.PL will check that you have tesseract installed.
 
+SEE ALSO
 
-INSTALLING TESSERACT
-====================
+INSTALL.tesseract
+INSTALL.imagemagick
+INSTALL
 
-Installing tesseract can be tricky.
-You will basically need gcc-c++ and automake installed on your system.
-
-You may be able to simply install the SVN version of Tesseract by using:
-
- svn checkout http://tesseract-ocr.googlecode.com/svn/trunk/ tesseract-ocr
- ./runautoconf
- mkdir build-directory
- cd build-directory
- ../configure
- make
- make install
-
-
-for more see google project on ocr, they use tesseract
 
 
 
