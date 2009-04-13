@@ -12,8 +12,9 @@ WriteMakefile(
 					 'File::Path' => 0,					 
 					 'File::Which' => 0,
 					 'Carp' => 0,
-		          'Image::Magick' => 0,		
-					 'LEOCHARRE::CLI' => 0,
+		          'Image::Magick' => 0,
+                'File::Find::Rule' => 0,
+					 'LEOCHARRE::CLI' => '1.19',
 					 },
     EXE_FILES               => [qw(bin/ocr)],
 );

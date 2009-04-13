@@ -1,3 +1,13 @@
+2009-04-12 21:14  cvs
+
+	* Makefile.PL, bin/ocr, lib/Image/OCR/Tesseract.pm: cleaned up
+	  documentation, moved module doc to own .pod, implemented ability
+	  to tell tesseract what language to use
+
+2008-11-21 12:04  cvs
+
+	* bin/ocr: fixed up bug in bin/ocr
+
 2008-09-18 17:24  cvs
 
 	* lib/Image/OCR/Tesseract.pm: changed the way trash is cleaned up

@@ -1,37 +1,30 @@
 #!/usr/bin/perl
 use strict;
 use base 'LEOCHARRE::CLI';
-use Cwd;
 use lib './lib';
-our $VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /(\d+)/g;
+use Cwd;
+our $VERSION = sprintf "%d.%02d", q$Revision: 1.6 $ =~ /(\d+)/g;
 use Image::OCR::Tesseract 'get_ocr';
 
-my $o = gopts('b');
+my $o = gopts('bl:vdh');
 
-if (DEBUG){
-   $Image::OCR::Tesseract::DEBUG=1;
-}
+$Image::OCR::Tesseract::DEBUG=1 if $o->{d};
 
 sub usage {
-   return qq{
-   $0 - $VERSION
-   ==========
-      -b blowup
-      -d debug on
+    qq{$0 [OPTION]... FILE...
+Read an image as text and output to stdout.
 
-      ocr ./image.jpg > ./savetext.txt
-      ocr ./image.png
-      ocr ./image1.jpg ./image2.jpg > ./alltext.txt
-      ocr ./image*jpg
+   -b          blowup (useful for small images)
+   -d          debug
+   -h          help
+   -l string   language
+   -v          version
 
-   man ocr for more information.
-   };
-}
+man ocr for more information.
+}}
 
 my $images = argv_aspaths();
-scalar @$images or print STDERR $usage and exit;
-
-
+$images and scalar @$images or die("Missing path to image files.\n");
 
 
 IMAGE: for my $abs_image (@$images){ ### Getting OCR %
@@ -50,7 +43,7 @@ IMAGE: for my $abs_image (@$images){ ### Getting OCR %
 
    my $ocr;
    
-   if( $ocr = get_ocr($abs_image) ){
+   if( $ocr = get_ocr($abs_image,undef, $o->{l}) ){
       if ($o->{b}){ 
          unlink $abs_image;
       }
@@ -60,7 +53,7 @@ IMAGE: for my $abs_image (@$images){ ### Getting OCR %
    }
 
 
-   warn("nothing inside $abs_image?");
+   warn("nothing inside $abs_image?\n");
    if ($o->{b}){
       unlink $abs_image;
    }
@@ -68,7 +61,6 @@ IMAGE: for my $abs_image (@$images){ ### Getting OCR %
 }
 
 exit;
-
 
 
 
@@ -87,10 +79,23 @@ No matter what image you provide, imagemagick convert is called to turn it into 
 for tesseract.
 
 
-=head1 OPTION FLAGS
+=head1 USAGE 
 
-   -b blowup  (useful for small images)
-   -d debug
+ocr [OPTION]... FILE...
+
+
+   -b          blowup (useful for small images)
+   -d          debug
+   -h          help
+   -l string   language
+   -v          version
+
+=head2 Usage Examples
+
+   ocr ./image.jpg > ./savetext.txt
+   ocr ./image.png
+   ocr ./image1.jpg ./image2.jpg > ./alltext.txt
+   ocr ./image*jpg
 
 =head1 AUTHOR
 
