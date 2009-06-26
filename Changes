@@ -1,3 +1,7 @@
+2009-06-26 10:10  cvs
+
+	* lib/Image/OCR/: Tesseract.pm, Tesseract.pod: updated docs
+
 2009-04-12 21:14  cvs
 
 	* Makefile.PL, bin/ocr, lib/Image/OCR/Tesseract.pm: cleaned up

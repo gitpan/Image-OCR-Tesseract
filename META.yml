@@ -1,17 +1,28 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Image-OCR-Tesseract
-version:      1.20
-version_from: lib/Image/OCR/Tesseract.pm
-installdirs:  site
+--- #YAML:1.0
+name:               Image-OCR-Tesseract
+version:            1.21
+abstract:           ~
+author:  []
+license:            perl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
 requires:
-    Carp:                          0
-    File::Copy:                    0
-    File::Find::Rule:              0
-    File::Path:                    0
-    File::Which:                   0
-    Image::Magick:                 0
-    LEOCHARRE::CLI:                1.19
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+    Carp:              1
+    Cwd:               3
+    Exporter:          5
+    File::Copy:        2.09
+    File::Find::Rule:  0.30
+    File::Path:        2.07
+    File::Spec:        3.29
+    File::Which:       0.05
+    LEOCHARRE::CLI:    1.19
+    Test::Simple:      0
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.48
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

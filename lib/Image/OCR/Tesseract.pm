@@ -6,8 +6,9 @@ use Exporter;
 use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS @TRASH);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_ocr _tesseract convert_8bpp_tif tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.20 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.21 $ =~ /(\d+)/g;
 %EXPORT_TAGS = ( all => \@EXPORT_OK );
+
 
 BEGIN {
    use File::Which 'which';

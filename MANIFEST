@@ -13,6 +13,8 @@ inc/Devel/AssertOS/Linux.pm
 inc/Devel/AssertOS/Unix.pm
 inc/Devel/CheckOS.pm
 lib/Image/OCR/Tesseract.pm
+lib/Image/OCR/Tesseract.pod
+t/00_dep.t
 t/02_Image_OCR_Tesseract.t
 t/99_cleanup.t
 t/img_big.jpg
