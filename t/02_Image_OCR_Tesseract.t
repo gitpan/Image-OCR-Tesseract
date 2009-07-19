@@ -1,6 +1,29 @@
 use Test::Simple 'no_plan';
 use lib './lib';
+
+
+BEGIN {
+   ok 1, 'started';
+   deps_cli() or exit;
+
+   sub deps_cli {
+      for my $bin ( qw(convert tesseract) ){      
+         warn("# Testing for command dep: $bin ..");
+         require File::Which;
+
+         File::Which::which($bin) or warn("# Missing path to executable: $bin")
+            and return 0;
+         ok 1,"have path to executable $bin, good.. ";
+      }
+      1;
+   }
+}
+
 use Image::OCR::Tesseract ':all';
+
+
+
+
 
 my $DEBUG = 1;
 

@@ -1,3 +1,10 @@
+2009-07-18 22:21  cvs
+
+	* INSTALL, t/00_dep.t, t/02_Image_OCR_Tesseract.t: Updated tests so
+	  if command deps are missing, tests skip out- warnings are made of
+	  the missing deps, which would be imagemagick convert and or
+	  tesseract
+
 2009-06-26 10:10  cvs
 
 	* lib/Image/OCR/: Tesseract.pm, Tesseract.pod: updated docs

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Image-OCR-Tesseract
-version:            1.21
+version:            1.22
 abstract:           ~
 author:  []
 license:            perl
