@@ -1,9 +1,7 @@
 use Test::Simple 'no_plan';
-use lib './lib';
-
 
 BEGIN {
-   ok 1, 'started';
+   ok 1, 'started.. will check for command dependencies..';
    deps_cli() or exit;
 
    sub deps_cli {
@@ -19,21 +17,35 @@ BEGIN {
    }
 }
 
+use lib './lib';
 use Image::OCR::Tesseract ':all';
+use File::Path;
+# Smart::Comments '###';
 
 
 
 
-
-my $DEBUG = 1;
 
 $Image::OCR::Tesseract::DEBUG=1;
 
 ok(1,"module loaded");
 
+my $tmp1 ='./t/text.tmp';
+my $content = 'This is text content
+It is present.';
+open(TMP,'>',$tmp1) or die("Cant write '$tmp1', $!");
+print TMP  $content;
+close TMP;
+-f $tmp1 or die;
+
+my $slurped = Image::OCR::Tesseract::_slurp($tmp1);
+ok( $slurped,'_slurp()');
+ok( $slurped=~/\Q$content\E/, "_slurp() has what we expected");
 
 
-require File::Path;
+
+
+
 my $abs_tmp = './t/tmp';
 File::Path::rmtree($abs_tmp);
 mkdir $abs_tmp;
@@ -46,15 +58,20 @@ my $abs_big = './t/img_big.jpg';
 my @imgs =('./t/paragraph.jpg',$abs_small, $abs_med, $abs_big);
 
 for my $abs (@imgs){
-   my $text ;
-   my $at;
-   my $tx;
-   ok( $at = convert_8bpp_tif($abs, './t/tmp/outtif.tif'), "8bpp $at");
-   ok( $tx = tesseract($at));
-   ok( length $tx);
+   printf "\n%s\ntesting image: '%s'\n", '-'x80, $abs;
+   my($text,$at,$tx,$length);
 
-   ok( $text = get_ocr($abs,$abs_tmp),"got text from $abs");
-   print STDERR " = TEXT IS: \n $text\n\n" if $DEBUG;
+   ok( $at = convert_8bpp_tif($abs, './t/tmp/outtif.tif'), "convert_8bpp_tif()");
+   ### $at
+   ok( $tx = tesseract($at), 'tesseract()');
+   $length = length $tx;
+   ok( $length,'output had length');
+   ### output from tesseract: $tx
+   ### length of output: $length
+
+   ok( $text = get_ocr($abs,$abs_tmp),"get_ocr()");
+   ### text output is: $text
+   
    
 }
 

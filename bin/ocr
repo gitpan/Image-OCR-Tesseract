@@ -1,17 +1,15 @@
 #!/usr/bin/perl
 use strict;
 use base 'LEOCHARRE::CLI';
-use lib './lib';
 use Cwd;
-our $VERSION = sprintf "%d.%02d", q$Revision: 1.6 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%02d", q$Revision: 1.7 $ =~ /(\d+)/g;
 use Image::OCR::Tesseract 'get_ocr';
 
 my $o = gopts('bl:vdh');
 
 $Image::OCR::Tesseract::DEBUG=1 if $o->{d};
 
-sub usage {
-    qq{$0 [OPTION]... FILE...
+sub usage {q{ocr [OPTION]... FILE...
 Read an image as text and output to stdout.
 
    -b          blowup (useful for small images)
@@ -20,7 +18,7 @@ Read an image as text and output to stdout.
    -l string   language
    -v          version
 
-man ocr for more information.
+Try 'man ocr' for more information.
 }}
 
 my $images = argv_aspaths();
@@ -70,19 +68,17 @@ __END__
 
 =head1 NAME
 
-ocr - read an image as text and output to stdout
+ocr - perform ocr on an image and output text to stdout
 
 =head1 DESCRIPTION
 
 This is just an interface to make it quick an easy to get ocr output from an image file.
-No matter what image you provide, imagemagick convert is called to turn it into the format
+No matter what image type you provide, imagemagick convert is called to turn it into the format
 for tesseract.
 
-
-=head1 USAGE 
+=head1 USAGE
 
 ocr [OPTION]... FILE...
-
 
    -b          blowup (useful for small images)
    -d          debug
@@ -90,22 +86,32 @@ ocr [OPTION]... FILE...
    -l string   language
    -v          version
 
-=head2 Usage Examples
+=head2 EXAMPLE USAGE
 
    ocr ./image.jpg > ./savetext.txt
    ocr ./image.png
    ocr ./image1.jpg ./image2.jpg > ./alltext.txt
    ocr ./image*jpg
 
-=head1 AUTHOR
-
-Leo Charre leocharre at cpan dot org
-
 =head1 SEE ALSO
 
-Image::OCR::Tesseract
-tesseract
-convert
+Image::OCR::Tesseract - parent package
+tesseract - look up google ocr project
+convert - from ImageMagick suite.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2010 Leo Charre. All rights reserved.
+
+=head1 LICENSE
+
+This package is free software; you can redistribute it and/or modify it under the same terms as Perl itself, i.e., under the terms of the "Artistic License" or the "GNU General Public License".
+
+=head1 DISCLAIMER
+
+This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the "GNU General Public License" for more details.
 
 =cut
 

@@ -2,13 +2,13 @@ package Image::OCR::Tesseract;
 use strict;
 use Carp;
 use Cwd;
+use String::ShellQuote 'shell_quote';
 use Exporter;
 use vars qw(@EXPORT_OK @ISA $VERSION $DEBUG $WHICH_TESSERACT $WHICH_CONVERT %EXPORT_TAGS @TRASH);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_ocr _tesseract convert_8bpp_tif tesseract);
-$VERSION = sprintf "%d.%02d", q$Revision: 1.22 $ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.24 $ =~ /(\d+)/g;
 %EXPORT_TAGS = ( all => \@EXPORT_OK );
-
 
 
 BEGIN {
@@ -30,8 +30,7 @@ END {
    }
 }
 
-sub DEBUG : lvalue { $DEBUG }
-sub debug { print STDERR 'DEBUG '.__PACKAGE__.", @_\n" if $DEBUG; 1 }
+sub DEBUG { Carp::cluck("Image::OCR::Tesseract::DEBUG() deprecated") }
 
 sub get_ocr {
 	my ($abs_image,$abs_tmp_dir,$lang )= @_;
@@ -41,7 +40,7 @@ sub get_ocr {
 
       -d $abs_tmp_dir or die("tmp dir arg $abs_tmp_dir not a dir on disk.");
 
-      $abs_image=~/([^\/]+)$/ or die('cant match filename');
+      $abs_image=~/([^\/]+)$/ or die("cant match filename in path arg '$abs_image'");
       my $abs_copy = "$abs_tmp_dir/$1";
 
       # TODO, what if source and dest are same, i want it to die
@@ -71,34 +70,48 @@ sub convert_8bpp_tif {
    my @arg = ( $WHICH_CONVERT, $abs_img, '-compress','none','+matte', $abs_out );
    system(@arg) == 0 or die("convert $abs_img error.. $?");
 
-   debug("made $abs_out 8bpp tiff.");
+   $DEBUG and warn("made $abs_out 8bpp tiff.");
    $abs_out;
 }
 
 
+
+# people expect tesseract to automatically convert
+
 *tesseract = \&_tesseract;
 sub _tesseract {
 	my ($abs_image,$lang) = @_;
-   defined $abs_image or croak('missing image pah arg');
+   defined $abs_image or croak('missing image path arg');
    
+   $abs_image=~/\.tif+$/i or warn("Are you sure '$abs_image' is a tif image? This operation may fail.");
    
-   my $cmd = "$WHICH_TESSERACT '$abs_image' '$abs_image'"
-      . ( defined $lang ? " -l $lang" : '' )
-      . "  2>/dev/null";
-   debug("_tesseract command: $cmd");
+   #my @arg = (
+   #   $WHICH_TESSERACT, shell_quote($abs_image), shell_quote($abs_image), 
+   #   (defined $lang and ('-l', $lang) ), '2>/dev/null'
+   #); 
+
+   my $cmd = 
+      ( sprintf '%s %s %s', 
+         $WHICH_TESSERACT, 
+         shell_quote($abs_image), 
+         shell_quote($abs_image) 
+      ) .
+      ( defined $lang ? " -l $lang" : '' ) .
+      "  2>/dev/null";
+   $DEBUG and warn "command: $cmd";
+
 	system($cmd); # hard to check ==0 
 
 	my $txt = "$abs_image.txt";
    unless( -f $txt ){      
-		carp( __PACKAGE__.", tesseract did not output? nothing inside [$abs_image]? ('$txt' not file on disk)");
+		Carp::cluck("no text output for image '$abs_image'. (No text file '$txt' found on disk)");
       return;
    }
 
-	debug("text saved as '$abs_image.txt'");
+	$DEBUG and warn "Found text file '$txt'";
    
    my $content = (_slurp($txt) || '');   
-   debug("content length is ". length $content );
-
+   $DEBUG and warn("content length of text in '$txt' from image '$abs_image' is ". length $content );
    push @TRASH, $txt;
 
    $content;

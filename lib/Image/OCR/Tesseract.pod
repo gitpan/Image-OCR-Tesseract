@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Image::OCR::Tesseract - read an image with tesseract and get output
+Image::OCR::Tesseract - read an image with tesseract ocr and get output
 
 =head1 SYNOPSIS
 
@@ -120,7 +120,6 @@ Attempting to install on an unsupported OS will throw an exception.
 =head1 DEBUG
 
 Set the debug flag on:
-
 	$Image::OCR::Tesseract::DEBUG = 1;
 
 A temporary file is created, if DEBUG is on, the file is not deleted, the file path is printed to STDERR.

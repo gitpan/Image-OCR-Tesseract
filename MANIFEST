@@ -3,7 +3,6 @@ INSTALL
 INSTALL.imagemagick
 INSTALL.tesseract
 MANIFEST
-META.yml
 Makefile.PL
 README
 bin/ocr
@@ -23,3 +22,4 @@ t/img_small.jpg
 t/paragraph.jpg
 t/tesseract_install_helper.pl
 t/test.sh
+META.yml                                 Module meta-data (added by MakeMaker)
